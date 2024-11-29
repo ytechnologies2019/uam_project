@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Approval Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, {{ username }}</h1>
+    <p>Approval Dashboard</p>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+        {% for submission in submissions %}
+        <tr>
+            <td>{{ submission.id }}</td>
+            <td>{{ submission.name }}</td>
+            <td>{{ submission.username }}</td>
+            <td>{{ submission.email }}</td>
+            <td>{{ submission.phonenumber }}</td>
+            <td>{{ submission.status }}</td>
+            <td>
+                <form method="POST" style="display:inline;">
+                    <input type="hidden" name="submission_id" value="{{ submission.id }}">
+                    <button type="submit" name="action" value="approve">Approve</button>
+                </form>
+                <form method="POST" style="display:inline;">
+                    <input type="hidden" name="submission_id" value="{{ submission.id }}">
+                    <button type="submit" name="action" value="reject">Reject</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+</html>

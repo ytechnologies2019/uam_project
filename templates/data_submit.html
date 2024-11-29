@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Submission</title>
+</head>
+<body>
+    <h1>Welcome, {{ username }}</h1>
+    <p>This is the data submission page.</p>
+    <form method="POST">
+        <label for="data">Enter Data:</label>
+        <input type="text" id="data" name="data" required>
+        <input type="submit" value="Submit">
+    </form>
+    {% if message %}
+        <p style="color: green;">{{ message }}</p>
+    {% endif %}
+    <br>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+</html>

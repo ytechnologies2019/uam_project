@@ -5,7 +5,7 @@
 </head>
 <body>
     <h1>Welcome, {{ username }}</h1>
-    <p>Approval Dashboard</p>
+    <h2>Pending Submissions</h2>
     <table border="1">
         <tr>
             <th>ID</th>
@@ -14,23 +14,23 @@
             <th>Email</th>
             <th>Phone Number</th>
             <th>Status</th>
-            <th>Action</th>
+            <th>Actions</th>
         </tr>
         {% for submission in submissions %}
         <tr>
-            <td>{{ submission.id }}</td>
-            <td>{{ submission.name }}</td>
-            <td>{{ submission.username }}</td>
-            <td>{{ submission.email }}</td>
-            <td>{{ submission.phonenumber }}</td>
-            <td>{{ submission.status }}</td>
+            <td>{{ submission['id'] }}</td>
+            <td>{{ submission['name'] }}</td>
+            <td>{{ submission['username'] }}</td>
+            <td>{{ submission['email'] }}</td>
+            <td>{{ submission['phonenumber'] }}</td>
+            <td>{{ submission['status'] }}</td>
             <td>
                 <form method="POST" style="display:inline;">
-                    <input type="hidden" name="submission_id" value="{{ submission.id }}">
+                    <input type="hidden" name="submission_id" value="{{ submission['id'] }}">
                     <button type="submit" name="action" value="approve">Approve</button>
                 </form>
                 <form method="POST" style="display:inline;">
-                    <input type="hidden" name="submission_id" value="{{ submission.id }}">
+                    <input type="hidden" name="submission_id" value="{{ submission['id'] }}">
                     <button type="submit" name="action" value="reject">Reject</button>
                 </form>
             </td>

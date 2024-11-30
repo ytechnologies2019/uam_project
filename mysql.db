@@ -1,11 +1,11 @@
--- Create the database
-CREATE DATABASE UAM_Project;
+-- Step 1: Create the database
+CREATE DATABASE IF NOT EXISTS UAM_Project;
 
 -- Use the newly created database
 USE UAM_Project;
 
--- Create the users table with departments and roles
-CREATE TABLE users (
+-- Step 2: Create the users table with departments and roles
+CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Automatically track when the user was created
 );
 
--- Insert sample users with departments and roles
+-- Step 3: Insert sample users into the users table
 INSERT INTO users (username, password, department, role) VALUES
 ('datauser1', 'password1', 'Department 1', 'datauser'),
 ('datauser2', 'password2', 'Department 2', 'datauser'),
@@ -22,13 +22,18 @@ INSERT INTO users (username, password, department, role) VALUES
 ('approver2', 'password4', 'Department 2', 'approver'),
 ('auditor', 'password5', 'Auditor Department', 'auditor');
 
-//
-CREATE TABLE submissions (
+-- Step 4: Create the submissions table to store pending approvals
+CREATE TABLE IF NOT EXISTS submissions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     username VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     phonenumber VARCHAR(20) NOT NULL,
-    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending', -- Status of the submission
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Automatically track when the submission was created
 );
+
+-- Step 5: Insert sample submissions for approval
+INSERT INTO submissions (name, username, email, phonenumber, status) VALUES
+('John Doe', 'datauser1', 'john.doe@example.com', '1234567890', 'Pending'),
+('Jane Smith', 'datauser2', 'jane.smith@example.com', '0987654321', 'Pending');

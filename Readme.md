@@ -1,6 +1,21 @@
-## UAM Portal 
-pip install flask mysql-connector-python
+# UAM_Project Database Setup
 
-ALTER TABLE submissions ADD COLUMN department VARCHAR(255) NOT NULL AFTER phonenumber;
+This repository provides SQL scripts to set up the `UAM_Project` database, which contains user management and submission approval systems.
 
-ALTER TABLE submissions ADD COLUMN department VARCHAR(255) NOT NULL AFTER phonenumber;
+## Prerequisites
+
+Before running the SQL script, ensure you have the following:
+- A MySQL/MariaDB server installed and running.
+- Appropriate privileges to create databases and tables.
+
+## Steps to Set Up the Database
+
+Follow these steps to create and populate the database with the necessary tables and sample data.
+
+### 1. Create the Database
+
+The script first creates a database named `UAM_Project`. If the database already exists, it will not be created again.
+
+```sql
+CREATE DATABASE IF NOT EXISTS UAM_Project;
+USE UAM_Project;

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submission Status</title>
+</head>
+<body>
+    <h1>Welcome, {{ username }}!</h1>
+    <h2>Your Submitted Data and Status</h2>
+
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Department</th>
+            <th>Status</th>
+        </tr>
+        {% for submission in submissions %}
+        <tr>
+            <td>{{ submission['id'] }}</td>
+            <td>{{ submission['name'] }}</td>
+            <td>{{ submission['email'] }}</td>
+            <td>{{ submission['phonenumber'] }}</td>
+            <td>{{ submission['department'] }}</td>
+            <td>{{ submission['status'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <a href="{{ url_for('data_submit') }}">Back to Submission Page</a>
+    <br>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+</html>

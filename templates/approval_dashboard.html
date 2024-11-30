@@ -1,13 +1,23 @@
-<!-- approver_dashboard.html -->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Approver Dashboard</title>
+    <title>Approval Dashboard</title>
 </head>
 <body>
-    <h1>Welcome, {{ username }}</h1>
-    
-    <h2>All Users' Submissions</h2>
+    <h1>Welcome, {{ username }}!</h1>
+    <h2>Approval Dashboard</h2>
+
+    <!-- Department Filter Buttons -->
+    <h3>Filter by Department</h3>
+    <form method="GET" action="{{ url_for('approval_dashboard') }}">
+        <button type="submit" name="department" value="HR">HR</button>
+        <button type="submit" name="department" value="IT">IT</button>
+        <button type="submit" name="department" value="Finance">Finance</button>
+        <button type="submit" name="department" value="All">All</button>  <!-- Show all users -->
+    </form>
+
+    <!-- Pending Submissions Table -->
+    <h3>Pending Submissions</h3>
     <table border="1">
         <tr>
             <th>ID</th>
@@ -15,27 +25,59 @@
             <th>Username</th>
             <th>Email</th>
             <th>Phone Number</th>
+            <th>Department</th>
             <th>Status</th>
+            <th>Action</th>
         </tr>
-        {% for user in all_users %}
+        {% for submission in submissions %}
+        <tr>
+            <td>{{ submission['id'] }}</td>
+            <td>{{ submission['name'] }}</td>
+            <td>{{ submission['username'] }}</td>
+            <td>{{ submission['email'] }}</td>
+            <td>{{ submission['phonenumber'] }}</td>
+            <td>{{ submission['department'] }}</td>
+            <td>{{ submission['status'] }}</td>
+            <td>
+                <form method="POST" style="display: inline;">
+                    <input type="hidden" name="submission_id" value="{{ submission['id'] }}">
+                    <input type="hidden" name="action" value="approve">
+                    <button type="submit" style="color: green;">Approve</button>
+                </form>
+                <form method="POST" style="display: inline;">
+                    <input type="hidden" name="submission_id" value="{{ submission['id'] }}">
+                    <input type="hidden" name="action" value="reject">
+                    <button type="submit" style="color: red;">Reject</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- Approved Users Table -->
+    <h3>Approved Users (Filtered by {{ selected_department }})</h3>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Department</th>
+        </tr>
+        {% for user in approved_users %}
         <tr>
             <td>{{ user['id'] }}</td>
             <td>{{ user['name'] }}</td>
             <td>{{ user['username'] }}</td>
             <td>{{ user['email'] }}</td>
             <td>{{ user['phonenumber'] }}</td>
-            <td>{{ user['status'] }}</td>
+            <td>{{ user['department'] }}</td>
         </tr>
         {% endfor %}
     </table>
-    
+
     <br>
-    <!-- Button to view all users -->
-    <a href="{{ url_for('approver_dashboard') }}" style="font-size: 18px; padding: 10px; border: 1px solid black; background-color: #f0f0f0; text-decoration: none; color: black;">
-        View All Users
-    </a>
-    
-    <br><br>
     <a href="{{ url_for('logout') }}">Logout</a>
 </body>
 </html>

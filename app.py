@@ -60,6 +60,7 @@ def data_submit():
             name = request.form['name']
             email = request.form['email']
             phone_number = request.form['phone_number']
+            department = request.form['department']
 
             try:
                 conn = mysql.connector.connect(**db_config)
@@ -67,10 +68,10 @@ def data_submit():
 
                 # Insert submitted data into the database
                 query = """
-                    INSERT INTO submissions (name, username, email, phonenumber, status)
-                    VALUES (%s, %s, %s, %s, %s)
+                    INSERT INTO submissions (name, username, email, phonenumber, department, status)
+                    VALUES (%s, %s, %s, %s, %s, %s)
                 """
-                cursor.execute(query, (name, session['username'], email, phone_number, 'Pending'))
+                cursor.execute(query, (name, session['username'], email, phone_number, department, 'Pending'))
                 conn.commit()
 
                 return render_template('data_submit.html', username=session['username'], message="Data submitted successfully!")
@@ -85,6 +86,52 @@ def data_submit():
     else:
         return redirect(url_for('login'))
 
+# View Submitted Data (Status) by Data Users
+@app.route('/submitted_data')
+def submitted_data():
+    if 'username' in session and session['role'] == 'datauser':
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor(dictionary=True)
+
+            # Retrieve data submitted by the logged-in user
+            query = "SELECT * FROM submissions WHERE username = %s"
+            cursor.execute(query, (session['username'],))
+            submissions = cursor.fetchall()
+
+            return render_template('submitted_data.html', submissions=submissions, username=session['username'])
+        except Exception as e:
+            return str(e)
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+    else:
+        return redirect(url_for('login'))
+
+# View All Existing Users for Data Users
+@app.route('/all_existing_users')
+def all_existing_users():
+    if 'username' in session and session['role'] == 'datauser':
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor(dictionary=True)
+
+            # Retrieve all approved users
+            query = "SELECT * FROM all_users"
+            cursor.execute(query)
+            users = cursor.fetchall()
+
+            return render_template('all_existing_users.html', users=users, username=session['username'])
+        except Exception as e:
+            return str(e)
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+    else:
+        return redirect(url_for('login'))
+
 # Approval Dashboard for Approvers
 @app.route('/approval_dashboard', methods=['GET', 'POST'])
 def approval_dashboard():
@@ -93,102 +140,35 @@ def approval_dashboard():
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor(dictionary=True)
 
-            # Approve or reject submissions
-            if request.method == 'POST':
-                submission_id = request.form['submission_id']
-                action = request.form['action']
-
-                if action == 'approve':
-                    # Retrieve the submission details
-                    query = "SELECT * FROM submissions WHERE id = %s"
-                    cursor.execute(query, (submission_id,))
-                    submission = cursor.fetchone()
-
-                    if submission:
-                        # Move the submission to the all_users table
-                        insert_query = """
-                            INSERT INTO all_users (name, username, email, phonenumber)
-                            VALUES (%s, %s, %s, %s)
-                        """
-                        cursor.execute(insert_query, (
-                            submission['name'], 
-                            submission['username'], 
-                            submission['email'], 
-                            submission['phonenumber']
-                        ))
-                        
-                        # Delete the entry from the submissions table
-                        delete_query = "DELETE FROM submissions WHERE id = %s"
-                        cursor.execute(delete_query, (submission_id,))
-                        
-                        conn.commit()
-
-                elif action == 'reject':
-                    # Update the status to 'Rejected' in the submissions table
-                    update_query = "UPDATE submissions SET status = %s WHERE id = %s"
-                    cursor.execute(update_query, ('Rejected', submission_id))
-                    conn.commit()
-
-            # Retrieve all pending submissions
-            query = "SELECT * FROM submissions WHERE status = 'Pending'"
-            cursor.execute(query)
+            # Handle department filtering
+            selected_department = request.args.get('department', 'All')  # Default to 'All'
+            
+            # Filter submissions based on department selection
+            if selected_department == 'All':
+                query = "SELECT * FROM submissions WHERE status = 'Pending'"
+                cursor.execute(query)
+            else:
+                query = "SELECT * FROM submissions WHERE status = 'Pending' AND department = %s"
+                cursor.execute(query, (selected_department,))
             submissions = cursor.fetchall()
 
-            return render_template('approval_dashboard.html', submissions=submissions, username=session['username'])
+            # Retrieve approved users with filtering if needed
+            if selected_department == 'All':
+                query = "SELECT * FROM all_users"
+                cursor.execute(query)
+            else:
+                query = "SELECT * FROM all_users WHERE department = %s"
+                cursor.execute(query, (selected_department,))
+            approved_users = cursor.fetchall()
+
+            return render_template('approval_dashboard.html', 
+                                   submissions=submissions, 
+                                   approved_users=approved_users,
+                                   selected_department=selected_department,
+                                   username=session['username'])
+
         except Exception as e:
             return str(e)
-        finally:
-            if conn.is_connected():
-                cursor.close()
-                conn.close()
-    else:
-        return redirect(url_for('login'))
-
-#Check the Submission Status
-# Route to View Submitted Data for Data User
-@app.route('/my_submissions', methods=['GET'])
-def my_submissions():
-    if 'username' in session and session['role'] == 'datauser':
-        try:
-            conn = mysql.connector.connect(**db_config)
-            cursor = conn.cursor(dictionary=True)
-            
-            # Retrieve submissions of the current datauser
-            query = "SELECT * FROM submissions WHERE username = %s"
-            cursor.execute(query, (session['username'],))
-            submissions = cursor.fetchall()
-            
-            return render_template('my_submissions.html', submissions=submissions)
-        
-        except Exception as e:
-            return str(e)
-        
-        finally:
-            if conn.is_connected():
-                cursor.close()
-                conn.close()
-    else:
-        return redirect(url_for('login'))
-
-#Check all users from Approver
-# Route for Approver Dashboard (View all approved users)
-@app.route('/approver_dashboard', methods=['GET'])
-def approver_dashboard():
-    if 'username' in session and session['role'] == 'approver':
-        try:
-            conn = mysql.connector.connect(**db_config)
-            cursor = conn.cursor(dictionary=True)
-
-            # Retrieve all approved users from the 'all_users' table
-            query = "SELECT * FROM all_users"
-            cursor.execute(query)
-            all_users = cursor.fetchall()
-
-            return render_template('approver_dashboard.html', all_users=all_users, username=session['username'])
-        
-        except Exception as e:
-            return str(e)
-        
         finally:
             if conn.is_connected():
                 cursor.close()

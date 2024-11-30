@@ -133,12 +133,48 @@ def all_existing_users():
         return redirect(url_for('login'))
 
 # Approval Dashboard for Approvers
+# Approval Dashboard for Approvers
 @app.route('/approval_dashboard', methods=['GET', 'POST'])
 def approval_dashboard():
     if 'username' in session and session['role'] == 'approver':
         try:
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor(dictionary=True)
+
+            # Handle form submission for approval/rejection
+            if request.method == 'POST':
+                submission_id = request.form['submission_id']
+                action = request.form['action']
+                
+                if action == 'approve':
+                    # Insert approved submission into 'all_users' table
+                    approve_query = """
+                        INSERT INTO all_users (name, username, email, phonenumber, department)
+                        SELECT name, username, email, phonenumber, department
+                        FROM submissions
+                        WHERE id = %s
+                    """
+                    cursor.execute(approve_query, (submission_id,))
+                    conn.commit()
+
+                    # Update status in 'submissions' table to 'Approved'
+                    update_query = """
+                        UPDATE submissions
+                        SET status = 'Approved'
+                        WHERE id = %s
+                    """
+                    cursor.execute(update_query, (submission_id,))
+                    conn.commit()
+
+                elif action == 'reject':
+                    # Update status in 'submissions' table to 'Rejected'
+                    update_query = """
+                        UPDATE submissions
+                        SET status = 'Rejected'
+                        WHERE id = %s
+                    """
+                    cursor.execute(update_query, (submission_id,))
+                    conn.commit()
 
             # Handle department filtering
             selected_department = request.args.get('department', 'All')  # Default to 'All'
@@ -175,6 +211,7 @@ def approval_dashboard():
                 conn.close()
     else:
         return redirect(url_for('login'))
+
 
 
 # Logout Route

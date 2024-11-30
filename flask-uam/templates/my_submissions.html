@@ -1,0 +1,31 @@
+<!-- my_submissions.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Submissions</title>
+</head>
+<body>
+    <h1>Submitted Data by {{ username }}</h1>
+    <h2>Submission Status</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Status</th>
+        </tr>
+        {% for submission in submissions %}
+        <tr>
+            <td>{{ submission['id'] }}</td>
+            <td>{{ submission['name'] }}</td>
+            <td>{{ submission['email'] }}</td>
+            <td>{{ submission['phonenumber'] }}</td>
+            <td>{{ submission['status'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+</html>

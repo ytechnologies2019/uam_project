@@ -1,0 +1,34 @@
+-- Create the database
+CREATE DATABASE UAM_Project;
+
+-- Use the newly created database
+USE UAM_Project;
+
+-- Create the users table with departments and roles
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    department VARCHAR(255) NOT NULL, -- Stores department name (e.g., Department 1)
+    role ENUM('datauser', 'approver', 'auditor') NOT NULL, -- Role type
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Automatically track when the user was created
+);
+
+-- Insert sample users with departments and roles
+INSERT INTO users (username, password, department, role) VALUES
+('datauser1', 'password1', 'Department 1', 'datauser'),
+('datauser2', 'password2', 'Department 2', 'datauser'),
+('approver1', 'password3', 'Department 1', 'approver'),
+('approver2', 'password4', 'Department 2', 'approver'),
+('auditor', 'password5', 'Auditor Department', 'auditor');
+
+//
+CREATE TABLE submissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phonenumber VARCHAR(20) NOT NULL,
+    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
